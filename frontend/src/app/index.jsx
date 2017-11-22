@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 
 import './index.scss';
 
+import {MessagesBox} from './components/MessagesBox/MessagesBox.jsx';
+
 ReactDOM.render(
-    <div>FUCKING CONTETNTNTNTT MAN</div>
+    <MessagesBox/>
     , document.getElementById('root'));
