@@ -1,5 +1,8 @@
 $className: '.m1x5KS5PJo';
+$messageClassName: '.U4ETb8Jej8';
 
 #{$className} {
-    color: blue;
+    #{$messageClassName}{
+        margin: 10px;
+    }
 }

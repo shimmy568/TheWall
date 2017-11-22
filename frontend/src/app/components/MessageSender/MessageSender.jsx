@@ -1,26 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import './Message.scss';
+import './MessageSender.scss';
 
-export class Message extends React.Component {
+export class MessageSender extends React.Component {
 
     constructor() {
         super();
-        this.className = "U4ETb8Jej8";
+        this.className = "936KgYjDtH";
     }
 
     render () {
         return (
             <div className={this.className}>
-                <div className="id">{this.props.id}</div>
-                <div className="body">{this.props.message}</div>
+                <input type="text"/>
+                <button>Post</button>
             </div>
         );
     }
 }
 
-Message.propTypes = {
+MessageSender.propTypes = {
     message: PropTypes.string,
     id: PropTypes.number
 };

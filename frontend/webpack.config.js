@@ -21,23 +21,6 @@ module.exports = {
                 }
             },
             {
-                test: /\.svg$/,
-                use: [{
-                        loader: 'babel-loader'
-                    },
-                    {
-                        loader: 'react-svg-loader',
-                        options: {
-                            svgo: {
-                                plugins: [{
-                                    removeTitle: false
-                                }],
-                                floatPrecision: 2
-                            }
-                        }
-                    }
-                ]
-            }, {
                 test: /\.scss$/,
                 loader: "style-loader!css-loader!sass-loader"
             },

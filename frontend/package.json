@@ -21,8 +21,6 @@
         "prop-types": "^15.5.10",
         "react": "^15.6.1",
         "react-dom": "^15.6.1",
-        "react-svg-loader": "^1.1.1",
-        "svgo": "^0.7.2",
         "webpack": "^3.5.3"
     },
     "devDependencies": {
