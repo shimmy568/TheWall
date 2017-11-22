@@ -8,7 +8,7 @@ import { MessageSender } from './components/MessageSender/MessageSender.jsx';
 
 ReactDOM.render(
     <div>
-        <MessagesBox/>
         <MessageSender/>
+        <MessagesBox/>
     </div>
     , document.getElementById('root'));

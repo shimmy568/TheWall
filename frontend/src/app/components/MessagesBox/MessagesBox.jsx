@@ -33,7 +33,7 @@ export class MessagesBox extends React.Component {
         } else {
             body = [];
             for(let i = 0; i < this.state.messages.length; i++){
-                body.push(<Message message={this.state.messages[i].message} id={this.state.messages[i].id}/>);
+                body.push(<Message key={i} message={this.state.messages[i].message} id={this.state.messages[i].id}/>);
             }
         }
 

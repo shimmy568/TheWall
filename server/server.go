@@ -235,7 +235,6 @@ func main() {
 
 	r.POST("/getMessages", func(c *gin.Context) {
 		msgs := getMessages(db)
-		fmt.Println(msgs)
 		c.JSON(200, msgs)
 	})
 	r.Run() // listen and serve on 0.0.0.0:8080

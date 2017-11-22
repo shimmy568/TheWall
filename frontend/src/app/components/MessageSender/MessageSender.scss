@@ -1,1 +1,24 @@
-$className: '.936KgYjDtH';
+$className: '.a36KgYjDtH';
+
+#{$className} {
+    margin: 10px;
+    textarea {
+        resize: none;
+        width: calc(100% - 70px);
+        height: 60px;
+    }
+    button{
+        color: white;
+        background: green;
+        display: block;
+        position: absolute;
+        top: 11px;
+        right: 18px;
+        width: 62px;
+        height: 62px;
+        border: 1px solid lightgray;
+    }
+    button:disabled{
+        background: gray;
+    }
+}
