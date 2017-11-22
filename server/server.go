@@ -17,11 +17,16 @@ const (
 	user     = "postgres"
 	password = "password123"
 	dbname   = "TheWall"
-	coolDown = 3
+	coolDown = 3 //Three second cooldown on posting
 )
 
-type messageBody struct {
+type messagePostBody struct {
 	Message string `json:"message" binding:"required"`
+}
+
+type messageGetBody struct {
+	Message string `json:"message" binding:"required"`
+	ID      int    `json:"id" binding:"required"`
 }
 
 func connectToDb() *sql.DB {
@@ -117,7 +122,7 @@ func canPost(db *sql.DB, ip string) (string, bool) {
 		sqlStatement := `
 		SELECT message
 		FROM messages
-		WHERE ip = $1 AND time < $2`
+		WHERE ip = $1 AND time > $2`
 
 		var temp string
 
@@ -125,13 +130,13 @@ func canPost(db *sql.DB, ip string) (string, bool) {
 
 		if err != nil {
 			if err == sql.ErrNoRows {
-				cool <- false
+				cool <- true
 				return
 			}
 			panic(err)
 		}
 
-		cool <- true
+		cool <- false
 	}()
 
 	coolResult := <-cool
@@ -149,13 +154,66 @@ func canPost(db *sql.DB, ip string) (string, bool) {
 
 }
 
+func getMessages(db *sql.DB) []*messageGetBody {
+	sqlStatement := `
+	SELECT message, id
+	FROM messages
+	ORDER BY id DESC
+	LIMIT 100`
+
+	rows, err := db.Query(sqlStatement)
+	if err != nil {
+		panic(err)
+	}
+
+	defer rows.Close()
+
+	data := make([]*messageGetBody, 0)
+
+	for rows.Next() {
+		var msg string
+		var id int
+		rows.Scan(&msg, &id)
+		data = append(data, &messageGetBody{Message: msg, ID: id})
+	}
+
+	return data
+}
+
+//Bans an IP from posting, the during is in seconds so your gonna have to math a bit
+func banIP(db *sql.DB, ip string, duration int64) {
+	sqlStatement := `
+	INSERT INTO banList (ip, expire)
+	VALUES ($1, $2)`
+
+	expire := time.Now().Unix() + duration
+	_, err := db.Exec(sqlStatement, ip, expire)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+//Unbans an IP
+func unBanIP(db *sql.DB, ip string) {
+	sqlStatement := `
+	DELETE FROM banList
+	WHERE ip = $1`
+
+	_, err := db.Exec(sqlStatement, ip)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	db := connectToDb()
 	defer db.Close()
 
 	r := gin.Default()
 	r.POST("/newMessage", func(c *gin.Context) {
-		var binder messageBody
+		var binder messagePostBody
 		err := c.ShouldBindJSON(&binder)
 		if err == nil {
 			reason, result := canPost(db, c.ClientIP())
@@ -170,6 +228,12 @@ func main() {
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		}
+	})
+
+	r.POST("/getMessages", func(c *gin.Context) {
+		msgs := getMessages(db)
+		fmt.Println(msgs)
+		c.JSON(200, msgs)
 	})
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
