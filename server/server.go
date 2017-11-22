@@ -212,6 +212,9 @@ func main() {
 	defer db.Close()
 
 	r := gin.Default()
+
+	r.StaticFS("/", http.Dir("./../frontend/dist/"))
+
 	r.POST("/newMessage", func(c *gin.Context) {
 		var binder messagePostBody
 		err := c.ShouldBindJSON(&binder)
