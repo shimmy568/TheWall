@@ -12,12 +12,13 @@ import (
 )
 
 const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "password123"
-	dbname   = "TheWall"
-	coolDown = 3 //Three second cooldown on posting
+	host          = "localhost"
+	port          = 5432
+	user          = "postgres"
+	password      = "password123"
+	dbname        = "TheWall"
+	coolDown      = 3 //Three second cooldown on posting
+	sessionExpire = 24 * 60 * 60
 )
 
 type messageGetBody struct {

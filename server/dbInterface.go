@@ -128,6 +128,66 @@ func isBanned(db *sql.DB, ip string, output chan bool) {
 	output <- true
 }
 
+//addSession adds a session for a given ip that allows them to post without doing the recaptcha for a given piriod of time
+func addSession(db *sql.DB, ip string) {
+	sqlStatement := `
+	INSERT INTO sessionData
+	(ip, expire)
+	VALUES ($1, $2);`
+	expire := time.Now().Unix() + sessionExpire
+
+	_, err := db.Exec(sqlStatement, ip, expire)
+
+	if err != nil {
+		panic(err)
+	}
+
+}
+
+//hasSession is a function that should be called in a goroutine and resp should be buffered 1 for best results
+func hasSession(db *sql.DB, ip string, resp chan bool) {
+	sqlStatement1 := `
+	SELECT expire
+	FROM sessionData
+	WHERE ip = $1;`
+
+	sqlStatement2 := `
+	DELETE FROM sessionData
+	WHERE ip = $1;`
+
+	var expire int64
+	err := db.QueryRow(sqlStatement1, ip).Scan(&expire)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			resp <- false
+			return
+		}
+		panic(err)
+	}
+
+	if expire < time.Now().Unix() {
+		resp <- false
+		_, err = db.Exec(sqlStatement2, ip)
+		if err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	resp <- true
+}
+
+func cleanSessions(db *sql.DB) {
+	sqlStatement := `
+	DELETE FROM sessionData
+	WHERE expire < $1`
+
+	_, err := db.Exec(sqlStatement)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func isCoolDownActive(db *sql.DB, ip string, output chan bool) {
 	currentTime := time.Now().Unix()
 	sqlStatement := `
