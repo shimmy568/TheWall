@@ -129,15 +129,23 @@ func isBanned(db *sql.DB, ip string, output chan bool) {
 }
 
 //addSession adds a session for a given ip that allows them to post without doing the recaptcha for a given piriod of time
+//but first it removes any sessions that the user currently might have in the db
 func addSession(db *sql.DB, ip string) {
-	sqlStatement := `
+	sqlStatement1 := `
+	DELETE FROM sessionData
+	WHERE ip = $1`
+	sqlStatement2 := `
 	INSERT INTO sessionData
 	(ip, expire)
 	VALUES ($1, $2);`
+
+	_, err := db.Exec(sqlStatement1, ip)
+	if err != nil {
+		panic(err)
+	}
+
 	expire := time.Now().Unix() + sessionExpire
-
-	_, err := db.Exec(sqlStatement, ip, expire)
-
+	_, err = db.Exec(sqlStatement2, ip, expire)
 	if err != nil {
 		panic(err)
 	}
@@ -146,6 +154,7 @@ func addSession(db *sql.DB, ip string) {
 
 //hasSession is a function that should be called in a goroutine and resp should be buffered 1 for best results
 func hasSession(db *sql.DB, ip string, resp chan bool) {
+	fmt.Println("ayyyyy")
 	sqlStatement1 := `
 	SELECT expire
 	FROM sessionData

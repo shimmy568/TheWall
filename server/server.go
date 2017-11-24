@@ -28,7 +28,7 @@ type messageGetBody struct {
 
 type messagePostBody struct {
 	Message       string `json:"message" binding:"required"`
-	RecaptchaInfo string `json:"recaptchaInfo" binding:"required"`
+	RecaptchaInfo string `json:"recaptchaInfo"`
 }
 
 type recaptchaInfoRequestBody struct {
@@ -77,8 +77,12 @@ func canPost(db *sql.DB, ip string, recaptchaString string) bool {
 	//To check if the user is cool or not (the time between their last post and this one is larger than the cooldown)
 	go isCoolDownActive(db, ip, coolDownActive)
 
-	//To check is the recaptcha that has been provided is valid
-	go checkRecaptcha(recaptchaString, ip, recaptchaValid)
+	if recaptchaString == "" {
+		go hasSession(db, ip, recaptchaValid)
+	} else {
+		//To check is the recaptcha that has been provided is valid
+		go checkRecaptcha(recaptchaString, ip, recaptchaValid)
+	}
 
 	coolDownActiveResult := <-coolDownActive
 	bannedResult := <-banned
@@ -102,9 +106,11 @@ func main() {
 
 	r.StaticFS("/", http.Dir("./../frontend/dist/"))
 
+	//If they don't have a session they need to have the recaptcha in their post
 	r.POST("/newMessage", func(c *gin.Context) {
 		var binder messagePostBody
 		err := c.ShouldBindJSON(&binder)
+		fmt.Println(binder.RecaptchaInfo == "")
 		if err == nil {
 			result := canPost(db, c.ClientIP(), binder.RecaptchaInfo)
 			if result {
