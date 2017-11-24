@@ -12,13 +12,16 @@ export class MessageSender extends React.Component {
         this.state = {
             disabled: false
         }
+        window.postRecaptchaCallback = this.sendMessage.bind(this);
     }
 
-    sendMessage(){
+    sendMessage(recaptchaInfo){
+        console.log(recaptchaInfo)
         let msg = document.getElementById("messageBody").value;
         document.getElementById("messageBody").value = "";
         $.post('/newMessage', JSON.stringify({
-            message: msg
+            message: msg,
+            recaptchaInfo: recaptchaInfo
         }), (data, status) => {
             console.log(data);
             console.log(status);
@@ -37,7 +40,13 @@ export class MessageSender extends React.Component {
         return (
             <div className={this.className}>
                 <textarea id="messageBody" cols="50" rows="5"></textarea>
-                <button disabled={this.state.disabled} onClick={this.sendMessage.bind(this)}>Post</button>
+                <button
+                    className="g-recaptcha"
+                    disabled={this.state.disabled}
+                    data-sitekey="6LckYSAUAAAAANv6iblzpOyzC2zZNLbQ-M5Vlxfj"
+                    data-callback="postRecaptchaCallback">
+                  Post
+                </button>
             </div>
         );
     }
