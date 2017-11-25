@@ -9,12 +9,16 @@ That's it. No, really that's it. I just wanted to get an idea of how to deploy a
 ## Install dependencies
 > go get server/...
 
-## Run server 
+## Run server
+NOTE: This must be run from the root folder in the project. If it is run from anywhere else the go server
+will not be able to located the static files to serve.
 > go run server/*.go
 
 # Front end
 
 ## Install dependencies
+Go to front end folder
+> cd frontend
 
 Just run
 > yarn

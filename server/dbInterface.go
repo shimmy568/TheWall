@@ -8,9 +8,9 @@ import (
 	recaptcha "github.com/dpapathanasiou/go-recaptcha"
 )
 
-func getMessages(db *sql.DB) []*messageGetBody {
+func getMessages(db *sql.DB) (int64, []*messageGetBody) {
 	sqlStatement := `
-	SELECT message, id
+	SELECT message, id, time
 	FROM messages
 	ORDER BY id DESC
 	LIMIT 100`
@@ -24,14 +24,52 @@ func getMessages(db *sql.DB) []*messageGetBody {
 
 	data := make([]*messageGetBody, 0)
 
+	var firstTime int64
+	firstTime = -1
 	for rows.Next() {
 		var msg string
 		var id int
-		rows.Scan(&msg, &id)
+		var time int64
+		rows.Scan(&msg, &id, &time)
 		data = append(data, &messageGetBody{Message: msg, ID: id})
+		if firstTime == -1 {
+			firstTime = time
+		}
 	}
 
-	return data
+	return firstTime, data
+}
+
+func getMessageUpdate(db *sql.DB, time int64) (int64, []*messageGetBody) {
+	sqlStatement := `
+	SELECT message, id, time
+	FROM messages
+	WHERE time > $1
+	ORDER BY id DESC
+	LIMIT 100`
+
+	rows, err := db.Query(sqlStatement, time)
+	if err != nil {
+		panic(err)
+	}
+
+	data := make([]*messageGetBody, 0)
+
+	var firstTime int64
+	firstTime = -1
+	for rows.Next() {
+		var msg string
+		var id int
+		var time int64
+		rows.Scan(&msg, &id, &time)
+		data = append(data, &messageGetBody{Message: msg, ID: id})
+
+		if firstTime == -1 {
+			firstTime = time
+		}
+	}
+
+	return firstTime, data
 }
 
 //Bans an IP from posting, the during is in seconds so your gonna have to math a bit
@@ -139,11 +177,13 @@ func addSession(db *sql.DB, ip string) {
 	(ip, expire)
 	VALUES ($1, $2);`
 
+	//remove any old session
 	_, err := db.Exec(sqlStatement1, ip)
 	if err != nil {
 		panic(err)
 	}
 
+	//add the new session
 	expire := time.Now().Unix() + sessionExpire
 	_, err = db.Exec(sqlStatement2, ip, expire)
 	if err != nil {
@@ -154,7 +194,6 @@ func addSession(db *sql.DB, ip string) {
 
 //hasSession is a function that should be called in a goroutine and resp should be buffered 1 for best results
 func hasSession(db *sql.DB, ip string, resp chan bool) {
-	fmt.Println("ayyyyy")
 	sqlStatement1 := `
 	SELECT expire
 	FROM sessionData

@@ -26,6 +26,11 @@ type messageGetBody struct {
 	ID      int    `json:"id" binding:"required"`
 }
 
+type messageGetResponseBody struct {
+	Messages []*messageGetBody `json:"messages" binding:"required"`
+	Time     int64             `json:"time" binding:"required"`
+}
+
 type messagePostBody struct {
 	Message       string `json:"message" binding:"required"`
 	RecaptchaInfo string `json:"recaptchaInfo"`
@@ -42,6 +47,10 @@ type recaptchaInfoResponseBody struct {
 	ChallengeTs string    `json:"challenge_ts" binding:"required"`
 	Hostname    string    `json:"hostname" binding:"required"`
 	ErrorCodes  []*string `json:"error-codes"`
+}
+
+type updateMessagesRequestBody struct {
+	LastUpdate int64 `json:"lastUpdate" binding:"required"`
 }
 
 func connectToDb() *sql.DB {
@@ -104,16 +113,20 @@ func main() {
 
 	r := gin.Default()
 
-	r.StaticFS("/", http.Dir("./../frontend/dist/"))
+	r.StaticFS("/", http.Dir("./frontend/dist/"))
 
 	//If they don't have a session they need to have the recaptcha in their post
 	r.POST("/newMessage", func(c *gin.Context) {
 		var binder messagePostBody
 		err := c.ShouldBindJSON(&binder)
-		fmt.Println(binder.RecaptchaInfo == "")
 		if err == nil {
 			result := canPost(db, c.ClientIP(), binder.RecaptchaInfo)
 			if result {
+				//This will occur when the user posted with a repcatcha
+				//If this does happen we should add their info to the session table
+				if binder.RecaptchaInfo != "" {
+					go addSession(db, c.ClientIP())
+				}
 				go makeNewPost(db, binder.Message, c.ClientIP())
 			} else {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Not allowed to post"})
@@ -124,8 +137,23 @@ func main() {
 	})
 
 	r.POST("/getMessages", func(c *gin.Context) {
-		msgs := getMessages(db)
-		c.JSON(200, msgs)
+		time, msgs := getMessages(db)
+		respBody := messageGetResponseBody{Messages: msgs, Time: time}
+		c.JSON(200, respBody)
 	})
+
+	r.POST("/updateMessages", func(c *gin.Context) {
+		var binder updateMessagesRequestBody
+		err := c.ShouldBindJSON(&binder)
+		if err == nil {
+			time, msgs := getMessageUpdate(db, binder.LastUpdate)
+			respBody := messageGetResponseBody{Messages: msgs, Time: time}
+			c.JSON(200, respBody)
+		} else {
+			fmt.Println(err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
+	})
+
 	r.Run() // listen and serve on 0.0.0.0:8080
 }

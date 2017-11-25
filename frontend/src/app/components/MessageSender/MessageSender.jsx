@@ -10,25 +10,45 @@ export class MessageSender extends React.Component {
         super();
         this.className = "a36KgYjDtH";
         this.state = {
-            disabled: false
+            disabled: false,
+            hasSession: false
         }
-        window.postRecaptchaCallback = this.sendMessage.bind(this);
+        window.postRecaptchaCallback = this.sendMessageRecaptcha.bind(this);
     }
 
-    sendMessage(recaptchaInfo){
-        console.log(recaptchaInfo)
+    sendMessageRecaptcha(recaptchaInfo){
         let msg = document.getElementById("messageBody").value;
         document.getElementById("messageBody").value = "";
         $.post('/newMessage', JSON.stringify({
             message: msg,
             recaptchaInfo: recaptchaInfo
         }), (data, status) => {
-            console.log(data);
-            console.log(status);
+
+        });
+        this.setState({
+            disabled: true,
+            hasSession: true
+        })
+        window.setTimeout(window.updateMessages, 500);
+        window.setTimeout(() => {
+            this.setState({
+                disabled: false
+            });
+        }, 3500);
+    }
+
+    sendMessageSession(){
+        let msg = document.getElementById("messageBody").value;
+        document.getElementById("messageBody").value = "";
+        $.post('/newMessage', JSON.stringify({
+            message: msg
+        }), (data, status) => {
+
         });
         this.setState({
             disabled: true
         })
+        window.setTimeout(window.updateMessages, 500);
         window.setTimeout(() => {
             this.setState({
                 disabled: false
@@ -37,16 +57,22 @@ export class MessageSender extends React.Component {
     }
 
     render () {
+        let button = (
+        <button
+            className="g-recaptcha"
+            disabled={this.state.disabled}
+            data-sitekey="6LckYSAUAAAAANv6iblzpOyzC2zZNLbQ-M5Vlxfj"
+            data-callback="postRecaptchaCallback">
+          Post
+        </button>
+        );
+        if(this.state.hasSession){
+            button = (<button disabled={this.state.disabled} onClick={this.sendMessageSession.bind(this)}>Post</button>);
+        }
         return (
             <div className={this.className}>
                 <textarea id="messageBody" cols="50" rows="5"></textarea>
-                <button
-                    className="g-recaptcha"
-                    disabled={this.state.disabled}
-                    data-sitekey="6LckYSAUAAAAANv6iblzpOyzC2zZNLbQ-M5Vlxfj"
-                    data-callback="postRecaptchaCallback">
-                  Post
-                </button>
+                {button}
             </div>
         );
     }

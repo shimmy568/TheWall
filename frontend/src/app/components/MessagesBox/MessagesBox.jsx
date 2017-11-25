@@ -12,14 +12,36 @@ export class MessagesBox extends React.Component {
         super();
         this.className = "m1x5KS5PJo";
         this.state = {
-            messages: null
+            messages: null,
+            time: 0
         }
+        this.updateTimeoutID = -1;
+        window.updateMessages = this.updateMessages.bind(this)
     }
 
     getMessages(cb){
         $.post('/getMessages', {}, (data, status) => {
             cb(data);
+            this.updateTimeoutID = window.setTimeout(this.updateMessages.bind(this), 1000)
         });
+    }
+
+    updateMessages(){
+        window.clearTimeout(this.updateTimeoutID) //Prevent the timeout from going twice if it's called from the message sender
+        $.post('/updateMessages', JSON.stringify({
+            lastUpdate: this.state.time
+        }), (data, status) => {
+            //If len == 0 then there were no new messages to put out
+            if(data['messages'].length > 0){
+                let newMsgs = data['messages'].concat(this.state.messages)
+                newMsgs = newMsgs.slice(0, 100)
+                this.setState({
+                    messages: newMsgs,
+                    time: data['time']
+                });
+            }
+            this.updateTimeoutID = window.setTimeout(this.updateMessages.bind(this), 10000)
+        })
     }
 
     render () {
@@ -27,7 +49,8 @@ export class MessagesBox extends React.Component {
         if(this.state.messages == null){
             this.getMessages((data) => {
                 this.setState({
-                    messages: data
+                    messages: data["messages"],
+                    time: data["time"]
                 });
             });
         } else {
