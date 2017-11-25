@@ -1,14 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import {
+    BrowserRouter as Router,
+    Route,
+    Link
+} from 'react-router-dom'
+
+import { Home } from "./routes/Home/Home.jsx";
+import { Post } from "./routes/Post/Post.jsx";
+
 import './index.scss';
 
-import { MessagesBox } from './components/MessagesBox/MessagesBox.jsx';
-import { MessageSender } from './components/MessageSender/MessageSender.jsx';
 
 ReactDOM.render(
-    <div>
-        <MessageSender/>
-        <MessagesBox/>
-    </div>
+    <Router>
+        <div>
+        <Route exact path="/" component={Home}/>
+        <Route exact path="/post/:id" component={Post}/>
+        </div>
+    </Router>
     , document.getElementById('root'));

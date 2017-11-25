@@ -53,6 +53,10 @@ type updateMessagesRequestBody struct {
 	LastUpdate int64 `json:"lastUpdate" binding:"required"`
 }
 
+type messageGetRequestBody struct {
+	ID int `json:"id" binding:"required"`
+}
+
 func connectToDb() *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -113,7 +117,13 @@ func main() {
 
 	r := gin.Default()
 
-	r.StaticFS("/", http.Dir("./frontend/dist/"))
+	r.StaticFile("/", "./frontend/dist/index.html")
+	r.StaticFile("/bundle.js", "./frontend/dist/bundle.js")
+	r.StaticFile("/bundle.js.map", "./frontend/dist/bundle.js.map")
+
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./frontend/dist/index.html")
+	})
 
 	//If they don't have a session they need to have the recaptcha in their post
 	r.POST("/newMessage", func(c *gin.Context) {
@@ -142,6 +152,24 @@ func main() {
 		c.JSON(200, respBody)
 	})
 
+	r.POST("/getMessage", func(c *gin.Context) {
+
+		var binder messageGetRequestBody
+		err := c.ShouldBindJSON(&binder)
+
+		if err == nil {
+
+			found, msg := getMessage(db, binder.ID)
+			if !found {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Not Found"})
+			} else {
+				c.JSON(200, gin.H{"message": msg})
+			}
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
+	})
+
 	r.POST("/updateMessages", func(c *gin.Context) {
 		var binder updateMessagesRequestBody
 		err := c.ShouldBindJSON(&binder)
@@ -153,6 +181,10 @@ func main() {
 			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		}
+	})
+
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./frontend/dist/index.html")
 	})
 
 	r.Run() // listen and serve on 0.0.0.0:8080

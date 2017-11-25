@@ -257,3 +257,20 @@ func isCoolDownActive(db *sql.DB, ip string, output chan bool) {
 
 	output <- true
 }
+
+func getMessage(db *sql.DB, id int) (bool, string) {
+	sqlStatement := `
+	SELECT message
+	FROM messages
+	WHERE id = $1`
+
+	var msg string
+	err := db.QueryRow(sqlStatement, id).Scan(&msg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, ""
+		}
+	}
+
+	return true, msg
+}
