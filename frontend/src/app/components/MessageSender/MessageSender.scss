@@ -7,16 +7,19 @@ $className: '.a36KgYjDtH';
         width: calc(100% - 70px);
         height: 60px;
         padding: 0px;
+        border-width: 1px;
+        border-style: solid;
+        border-color: black;
     }
     button{
         color: white;
         background: green;
         display: block;
-        position: absolute;
+        position: fixed;
         top: 10px;
         right: 18px;
-        width: 62px;
-        height: 62px;
+        width: 64px;
+        height: 64px;
         border: 1px solid lightgray;
     }
     button:disabled{

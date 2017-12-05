@@ -13,33 +13,42 @@ module.exports = {
     entry: "./app/index.jsx",
     module: {
         loaders: [{
-                test: /(\.js|\.jsx)$/,
-                exclude: /(node_modules|dist)/,
-                loader: 'babel-loader',
-                query: {
-                    presets: ['react', 'es2015']
-                }
-            },
-            {
-                test: /\.scss$/,
-                loader: "style-loader!css-loader!sass-loader"
-            },
-            {
-                test: /\.jpg$/,
-                use: ["file-loader"]
-            }, {
-                test: /\.png$/,
-                use: ["url-loader?mimetype=image/png"]
-            },
-            {
-                test: /\.(html)$/,
-                use: {
-                    loader: 'html-loader',
-                    options: {
-                        attrs: [':data-src']
-                    }
+            test: /(\.js|\.jsx)$/,
+            exclude: /(node_modules|dist)/,
+            loader: 'babel-loader',
+            query: {
+                presets: [
+                    'react',
+                    'es2015',
+                    [
+                        "env", {
+                            "targets": {
+                                "browsers": ["last 2 versions", "safari >= 7"]
+                            }
+                        }]
+                ],
+            }
+        },
+        {
+            test: /\.scss$/,
+            loader: "style-loader!css-loader!sass-loader"
+        },
+        {
+            test: /\.jpg$/,
+            use: ["file-loader"]
+        }, {
+            test: /\.png$/,
+            use: ["url-loader?mimetype=image/png"]
+        },
+        {
+            test: /\.(html)$/,
+            use: {
+                loader: 'html-loader',
+                options: {
+                    attrs: [':data-src']
                 }
             }
+        }
         ]
     },
     output: {
