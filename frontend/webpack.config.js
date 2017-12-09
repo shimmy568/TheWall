@@ -19,13 +19,7 @@ module.exports = {
             query: {
                 presets: [
                     'react',
-                    'es2015',
-                    [
-                        "env", {
-                            "targets": {
-                                "browsers": ["last 2 versions", "safari >= 7"]
-                            }
-                        }]
+                    'es2015'
                 ],
             }
         },
