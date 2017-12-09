@@ -3,11 +3,15 @@ Just a little project that is meant to let people post anonymously to a wall or 
 
 That's it. No, really that's it. I just wanted to get an idea of how to deploy an app to an AWS instance and what not.
 
+Live demo (woooooooo) click [here](http://ec2-18-217-31-124.us-east-2.compute.amazonaws.com/) 
+
+Demo will not always be 100% up to date. I don't have any crazy thing going on to get that working (yet :wink:)
 
 # Backend
 
 ## Install dependencies
 > go get server/...
+not 100% on this solution, may have to do the good ole run crash install method :grimacing:
 
 ## Run server
 NOTE: This must be run from the root folder in the project. If it is run from anywhere else the go server
