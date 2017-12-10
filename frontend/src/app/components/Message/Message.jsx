@@ -14,10 +14,16 @@ export class Message extends React.Component {
     render () {
         let url = "/post/" + this.props.id
         let body = this.parseMessage(this.props.message)
+
+        let className = "body";
+        if(this.props.full){
+
+        }
+
         return (
             <div className={this.className}>
                 <Link className="id" to={url}>{"#" + this.props.id}</Link>
-                <div className="body">{body}</div>
+                <pre className="body">{body}</pre>
             </div>
         );
     }
@@ -32,7 +38,6 @@ export class Message extends React.Component {
          * @returns {Array<ReactElement>} - The elements to put as the message body
          */
 
-        //HAD TO DO THIS DUMB SHIT WITH THE _ BEUCASE OF SOME DUMBER SHIT WITH WEBPACK OR BABEL OR I DONT FUCKING KNOW FUCK THIS
         let key = 0;
         let elements = [];
         let regExForMsgId = /#([0-9]+)\b/;
@@ -50,7 +55,7 @@ export class Message extends React.Component {
                 }
                 elements.push(<Link key={key} className="link" to={"/post/" + matchMsg[1]}>{matchMsg[0]}</Link>)
                 key++;
-                messageText = messageText.slice(matchMsg.index + matchMsg[0].length);
+                messageText = messageText.slice(matchMsg[0].length);
             }
             matchMsg = regExForMsgId.exec(messageText);
         }
@@ -60,5 +65,6 @@ export class Message extends React.Component {
 
 Message.propTypes = {
     message: PropTypes.string,
-    id: PropTypes.number
+    id: PropTypes.number,
+    full: PropTypes.bool
 };

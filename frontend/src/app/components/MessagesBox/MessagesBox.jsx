@@ -26,7 +26,13 @@ export class MessagesBox extends React.Component {
         });
     }
 
-    updateMessages(){
+    /**
+     * Updates the messages without requesting all 100
+     * @author Owen Anderson
+     * 
+     * @param {string} newmsg - Used to pass in the message that was sent
+     */
+    updateMessages(newmsg){
         window.clearTimeout(this.updateTimeoutID) //Prevent the timeout from going twice if it's called from the message sender
         $.post('/updateMessages', JSON.stringify({
             lastUpdate: this.state.time
