@@ -11,12 +11,21 @@ Demo will not always be 100% up to date. I don't have any crazy thing going on t
 
 ## Install dependencies
 > go get server/...
+
 not 100% on this solution, may have to do the good ole run crash install method :grimacing:
 
 ## Run server
 NOTE: This must be run from the root folder in the project. If it is run from anywhere else the go server
 will not be able to located the static files to serve.
 > go run server/*.go
+
+## Setup postgres DB
+
+Make new user and configure to match login info in server.go
+
+Make new database title TheWall
+
+Run createSchema.sql to create tables in database
 
 # Front end
 
