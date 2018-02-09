@@ -4,8 +4,20 @@ $className: '.U4ETb8Jej8';
     border: 1px solid lightgray;
     background: lightcoral;
     padding: 15px;
+    text-overflow: ellipsis;
+    .body{
+        font-family: inherit;
+    }
     .id {
-        font-size: 60%;
+        font-size: 65%;
         margin-bottom: 10px;
+        color: blue;
+    }
+    .link {
+        display: inline;
+        color: blue;
+    }
+    .text {
+        display: inline;
     }
 }

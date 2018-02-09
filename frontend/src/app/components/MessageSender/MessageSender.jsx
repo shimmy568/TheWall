@@ -48,7 +48,9 @@ export class MessageSender extends React.Component {
         this.setState({
             disabled: true
         })
-        window.setTimeout(window.updateMessages, 500);
+        window.setTimeout(() => {
+            window.updateMessages(msg)
+        }, 800);
         window.setTimeout(() => {
             this.setState({
                 disabled: false
