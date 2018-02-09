@@ -3,8 +3,6 @@ Just a little project that is meant to let people post anonymously to a wall or 
 
 That's it. No, really that's it. I just wanted to get an idea of how to deploy an app to an AWS instance and what not.
 
-Demo will not always be 100% up to date. I don't have any crazy thing going on to get that working (yet :wink:)
-
 # Backend
 
 ## Install dependencies
