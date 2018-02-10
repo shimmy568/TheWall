@@ -3,41 +3,17 @@ Just a little project that is meant to let people post anonymously to a wall or 
 
 That's it. No, really that's it. I just wanted to get an idea of how to deploy an app to an AWS instance and what not.
 
-# Backend
+# Get running.
 
-## Install dependencies
-> go get server/...
+Update this bad boy with Docker. Make sure you have docker installed and then run this one command to spin up
+the container to get this bad boy running on localhost:8080. (make sure your in the root dir of the repo)
 
-not 100% sure about this solution, may have to do the good ole run crash install method :grimacing:
+> sudo docker build -t thewall . && sudo docker run -p 8080:8080 thewall
 
-## Run server
-NOTE: This must be run from the root folder in the project. If it is run from anywhere else the go server
-will not be able to located the static files to serve.
-> go run server/*.go
+Boom, fucking magic. Love me some Docker.
 
-## Setup postgres DB
+## Small note
 
-Make new user and configure to match login info in server.go
+Beucase of how Docker is you can't just Ctrl+C to kill them to stop the container run this command from another terminal.
 
-Make new database title TheWall
-
-Run createSchema.sql to create tables in database
-
-# Front end
-
-## Install dependencies
-Go to front end folder
-> cd frontend
-
-Just run
-> yarn
-
-You gonna need yarn for this so get that first [here](https://yarnpkg.com/en/)
-
-## Build bundle
-
-One time build
-> npm run build
-
-Watch mode
-> npm run watch
+> sudo docker rm $(sudo docker stop $(sudo docker ps -a -q --filter ancestor=thewall --format="{{.ID}}"))
