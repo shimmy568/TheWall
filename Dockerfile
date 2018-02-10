@@ -1,8 +1,9 @@
 FROM golang
 
+EXPOSE 8080
+
 ARG dev_build="true"
 ENV dev=${dev_build}
-ADD . /app
 
 # Install node
 RUN apt-get update
@@ -21,14 +22,21 @@ RUN go get github.com/dpapathanasiou/go-recaptcha
 RUN go get github.com/gin-gonic/gin
 RUN go get github.com/mattn/go-sqlite3
 
-# install sqlite and setup datebase (if development build)
-RUN if [ $dev = "true" ]; then apt-get install sqlite3 && sqlite3 /app/development.db < /app/server/sqlShite/createSchema.sql; fi
-
+COPY frontend/yarn.lock /app/frontend/yarn.lock
+COPY frontend/package.json /app/frontend/package.json
 # Run yarn to get node deps
 WORKDIR /app/frontend
-RUN yarn && npm build
+RUN yarn
 
-EXPOSE 8080
+# install sqlite and setup datebase (if development build)
+COPY server/sqlShite/createSchema.sql /app/server/sqlShite/createSchema.sql
+RUN if [ $dev = "true" ]; then apt-get install sqlite3 && sqlite3 /app/development.db < /app/server/sqlShite/createSchema.sql; fi
+
+COPY frontend/src /app/frontend/src
+COPY frontend/webpack.config.js /app/frontend/webpack.config.js
+RUN npm run build
+
+COPY server /app/server
 
 # Run go server
 WORKDIR /app/
