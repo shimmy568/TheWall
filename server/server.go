@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 
 	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 
 	recaptcha "github.com/dpapathanasiou/go-recaptcha"
 	"github.com/gin-gonic/gin"
@@ -58,12 +60,21 @@ type messageGetRequestBody struct {
 }
 
 func connectToDb() *sql.DB {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
 
 	//Create the connection to the database
-	db, err := sql.Open("postgres", psqlInfo)
+	var err error
+	var db *sql.DB
+
+	// depending on deployment state use sqlite3 or postgres bindings for database
+	if os.Getenv("dev") == "true" {
+		db, err = sql.Open("sqlite3", "development.db")
+	} else {
+		psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+			"password=%s dbname=%s sslmode=disable",
+			host, port, user, password, dbname)
+		db, err = sql.Open("postgres", psqlInfo)
+	}
+
 	if err != nil {
 		panic(err)
 	}
