@@ -28,6 +28,7 @@ COPY server/sqlShite/createSchema.sql /app/server/sqlShite/createSchema.sql
 RUN if [ ${dev_build} = "true" ]; then apt-get update && apt-get install sqlite3 && sqlite3 /app/development.db < /app/server/sqlShite/createSchema.sql; fi
 
 COPY frontend/src /app/frontend/src
+COPY frontend/dist/index.html /app/frontend/dist/index.html
 COPY frontend/webpack.config.js /app/frontend/webpack.config.js
 RUN npm run build
 

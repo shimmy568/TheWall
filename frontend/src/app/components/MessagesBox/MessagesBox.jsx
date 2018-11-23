@@ -19,7 +19,7 @@ export class MessagesBox extends React.Component {
         window.updateMessages = this.updateMessages.bind(this)
     }
 
-    getMessages(cb){
+    getMessages(cb) {
         $.post('/getMessages', {}, (data, status) => {
             cb(data);
             this.updateTimeoutID = window.setTimeout(this.updateMessages.bind(this), 1000)
@@ -32,27 +32,36 @@ export class MessagesBox extends React.Component {
      * 
      * @param {string} newmsg - Used to pass in the message that was sent
      */
-    updateMessages(newmsg){
+    updateMessages(newmsg) {
         window.clearTimeout(this.updateTimeoutID) //Prevent the timeout from going twice if it's called from the message sender
-        $.post('/updateMessages', JSON.stringify({
-            lastUpdate: this.state.time
-        }), (data, status) => {
-            //If len == 0 then there were no new messages to put out
-            if(data['messages'].length > 0){
-                let newMsgs = data['messages'].concat(this.state.messages)
-                newMsgs = newMsgs.slice(0, 100)
-                this.setState({
-                    messages: newMsgs,
-                    time: data['time']
-                });
+        $.ajax({
+            type: "POST",
+            beforeSend: function (request) {
+                request.setRequestHeader("Content-Type", "application/json");
+            },
+            url: "/updateMessages",
+            data: JSON.stringify({
+                LastUpdate: this.state.time || 0
+            }),
+            processData: false,
+            success: (data, status) => {
+                //If len == 0 then there were no new messages to put out
+                if (data['messages'].length > 0) {
+                    let newMsgs = data['messages'].concat(this.state.messages)
+                    newMsgs = newMsgs.slice(0, 100);
+                    this.setState({
+                        messages: newMsgs,
+                        time: data['time']
+                    });
+                }
+                this.updateTimeoutID = window.setTimeout(this.updateMessages.bind(this), 10000)
             }
-            this.updateTimeoutID = window.setTimeout(this.updateMessages.bind(this), 10000)
-        })
+        });
     }
 
-    render () {
+    render() {
         let body = <div className="loading">Loading...</div>;
-        if(this.state.messages == null){
+        if (this.state.messages == null) {
             this.getMessages((data) => {
                 this.setState({
                     messages: data["messages"],
@@ -61,8 +70,8 @@ export class MessagesBox extends React.Component {
             });
         } else {
             body = [];
-            for(let i = 0; i < this.state.messages.length; i++){
-                body.push(<Message key={i} message={this.state.messages[i].message} id={this.state.messages[i].id}/>);
+            for (let i = 0; i < this.state.messages.length; i++) {
+                body.push(<Message key={i} message={this.state.messages[i].message} id={this.state.messages[i].id} />);
             }
         }
 

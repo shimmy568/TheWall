@@ -1,5 +1,5 @@
 CREATE TABLE messages (
-	id        SERIAL UNIQUE,
+	id       INTEGER UNIQUE PRIMARY KEY,
 	message	  VARCHAR,
 	ip        VARCHAR,
 	time	  BIGINT

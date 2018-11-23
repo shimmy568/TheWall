@@ -52,7 +52,7 @@ type recaptchaInfoResponseBody struct {
 }
 
 type updateMessagesRequestBody struct {
-	LastUpdate int64 `json:"lastUpdate" binding:"required"`
+	LastUpdate int64 `json:"LastUpdate"`
 }
 
 type messageGetRequestBody struct {

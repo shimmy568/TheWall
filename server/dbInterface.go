@@ -129,7 +129,8 @@ func makeNewPost(db *sql.DB, message string, ip string) {
 }
 
 func checkRecaptcha(recaptchaInfo string, ip string, output chan bool) {
-	output <- recaptcha.Confirm(ip, recaptchaInfo)
+	o, _ := recaptcha.Confirm(ip, recaptchaInfo)
+	output <- o
 }
 
 func isBanned(db *sql.DB, ip string, output chan bool) {
